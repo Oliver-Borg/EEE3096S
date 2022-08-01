@@ -1,3 +1,8 @@
+/*
+Author: Oliver Borg
+StuNum: BRGOLI005
+Partner: PRKRAZ006
+*/
 # include <stdio.h>
 int main(){
     int a, b, sum;
