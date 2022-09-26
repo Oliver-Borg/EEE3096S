@@ -138,13 +138,36 @@ int main(void){
   //TASK 6
   //YOUR CODE HERE
 
-
+  setTime(0, 32, 13, 6, 24, 9, 22);
   /* USER CODE END 2 */
 
-  /* Infinite loop */
+
   /* USER CODE BEGIN WHILE */
-  int i = 0;
-  setTime(0, 32, 13, 6, 24, 9, 22);
+  int dec = 24;
+  uint8_t bcd = decToBcd(dec);
+  // Display the decimal value
+  sprintf(buffer, "Decimal: %d\r\n", dec);
+  // Transmit data via UART
+  HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
+
+  // Display the BCD value of the decimal value
+  sprintf(buffer, "BCD from decToBcd: %d\r\n", bcd);
+  // Transmit data via UART
+  HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
+
+  // Get the decimal value of the bcd value
+  dec = bcdToDec(bcd);
+  // Display the decimal value of the BCD value
+  sprintf(buffer, "Decimal from bcdToDec: %d\r\n", dec);
+  // Transmit data via UART
+  HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
+
+  // Populate the buffer with a message used to synchronise the the python timing code
+  sprintf(buffer, "Start\r\n");
+  // Transmit data via UART
+  HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
+
+  /* Infinite loop */
   while (1)
   {
     /* USER CODE END WHILE */
@@ -155,19 +178,23 @@ int main(void){
 
 	//TO DO:
 	//TASK 6
+	// Get the time from the RTC and populate the time struct
 	getTime();
+	// Get the epoch time for the current time
 	int et = epochFromTime(time);
+	// Populate the buffer with the epoch time
 	sprintf(buffer, "%d \r\n", et);
-	//This creates a string "55555555555555" with a pointer called buffer
-
-	//Transmit data via UART
-	//Blocking! fine for small buffers
+	// Transmit data via UART
 	HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
-
+	// Populate the buffer with the date
 	sprintf(buffer, "20%02d-%02d-%02d\r\n", time.year, time.month, time.dayofmonth);
+	// Transmit data via UART
 	HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
+	// Populate the buffer with the time
 	sprintf(buffer, "%02d:%02d:%02d \r\n", time.hour, time.minutes, time.seconds);
+	// Transmit data via UART
 	HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
+	// Delay for 1 second
 	pause_sec(1);
 	//YOUR CODE HERE
 
