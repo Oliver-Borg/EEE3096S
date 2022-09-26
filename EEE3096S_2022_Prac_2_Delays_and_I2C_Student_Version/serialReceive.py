@@ -11,15 +11,19 @@ t1 = time.time()
 
 
 while(time.time()-t1 < timeout):
-    for i in range(256):
-        try:
-            serialPort = serial.Serial(port = f"COM{i+1}", baudrate=9600, bytesize=8, timeout=2, stopbits=serial.STOPBITS_ONE)
-            break
-        except:
-            pass
+    try:
+        serialPort = serial.Serial(port = "COM3", baudrate=9600, bytesize=8, timeout=2, stopbits=serial.STOPBITS_ONE)
+        break
+    except:
+        pass
+    try:
+        serialPort = serial.Serial(port = "/dev/ttyUSB0", baudrate=9600, bytesize=8, timeout=2, stopbits=serial.STOPBITS_ONE)
+        break
+    except:
+        pass
 
 if(time.time()-t1 >= timeout):
-     serialPort = serial.Serial(port = "COM3", baudrate=9600, bytesize=8, timeout=2, stopbits=serial.STOPBITS_ONE)
+     serialPort = serial.Serial(port = "/dev/ttyUSB0", baudrate=9600, bytesize=8, timeout=2, stopbits=serial.STOPBITS_ONE)
 
 serialString = ""                           # Used to hold data coming over UART
 
