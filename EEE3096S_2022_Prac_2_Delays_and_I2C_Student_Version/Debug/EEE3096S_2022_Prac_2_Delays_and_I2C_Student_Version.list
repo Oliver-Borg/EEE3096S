@@ -952,7 +952,7 @@ int main(void){
  8000772:	220e      	movs	r2, #14
  8000774:	f002 fd74 	bl	8003260 <HAL_UART_Transmit>
   // Populate the buffer with a message used to synchronise the the python timing code
-  sprintf(buffer, "Start\r\n");
+  sprintf(buffer, "Start\n");
  8000778:	4a30      	ldr	r2, [pc, #192]	; (800083c <main+0x16c>)
  800077a:	4b2d      	ldr	r3, [pc, #180]	; (8000830 <main+0x160>)
  800077c:	0011      	movs	r1, r2
@@ -1632,7 +1632,7 @@ void pause_sec(float x)
  8000b72:	b006      	add	sp, #24
  8000b74:	bd80      	pop	{r7, pc}
  8000b76:	46c0      	nop			; (mov r8, r8)
- 8000b78:	47862080 	.word	0x47862080
+ 8000b78:	47802000 	.word	0x47802000
 
 08000b7c <decToBcd>:
 

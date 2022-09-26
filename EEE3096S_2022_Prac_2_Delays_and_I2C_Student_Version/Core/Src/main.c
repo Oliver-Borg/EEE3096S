@@ -49,7 +49,7 @@ typedef struct {
 //TASK 2
 //Give DELAY1 and DELAY2 sensible values
 #define DELAY1 50
-#define DELAY2 68673
+#define DELAY2 65600
 
 //TO DO:
 //TASK 4
@@ -160,7 +160,7 @@ int main(void){
   // Transmit data via UART
   HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
   // Populate the buffer with a message used to synchronise the the python timing code
-  sprintf(buffer, "Start\r\n");
+  sprintf(buffer, "Start\n");
   // Transmit data via UART
   HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
   /* Infinite loop */
