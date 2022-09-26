@@ -13,7 +13,7 @@ t1 = time.time()
 
 while(time.time()-t1 < timeout):
     try:
-        serialPort = serial.Serial(port = "COM5", baudrate=9600, bytesize=8, timeout=2, stopbits=serial.STOPBITS_ONE)
+        serialPort = serial.Serial(port = "COM3", baudrate=9600, bytesize=8, timeout=2, stopbits=serial.STOPBITS_ONE)
         break
     except:
         pass

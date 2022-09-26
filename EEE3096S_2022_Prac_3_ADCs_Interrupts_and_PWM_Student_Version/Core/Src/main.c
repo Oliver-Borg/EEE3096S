@@ -145,7 +145,7 @@ int main(void)
 	  uint32_t CRR_val = ADCtoCRR(ADC_Poll);
 	  sprintf (buffer, "%ld\r\n", CRR_val);
 	  HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
-
+	  // Display Duty Cycle
     sprintf(buffer, "Duty:\n\r");
     HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
 
@@ -153,6 +153,7 @@ int main(void)
     sprintf(buffer, "%d \r\n",duty);
     HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
 
+    	// Change brightness of green LED depending on CRR value
 	  __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_4, CRR_val);
 
 	  //TASK 4
