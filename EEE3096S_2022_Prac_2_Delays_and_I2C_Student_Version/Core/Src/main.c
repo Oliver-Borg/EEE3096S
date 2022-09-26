@@ -146,27 +146,23 @@ int main(void){
   int dec = 24;
   uint8_t bcd = decToBcd(dec);
   // Display the decimal value
-  sprintf(buffer, "Decimal: %d\r\n", dec);
+  sprintf(buffer, "Dec:%d\r\n", dec);
   // Transmit data via UART
   HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
-
   // Display the BCD value of the decimal value
-  sprintf(buffer, "BCD from decToBcd: %d\r\n", bcd);
+  sprintf(buffer, "Bcd:%d\r\n", bcd);
   // Transmit data via UART
   HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
-
   // Get the decimal value of the bcd value
   dec = bcdToDec(bcd);
   // Display the decimal value of the BCD value
-  sprintf(buffer, "Decimal from bcdToDec: %d\r\n", dec);
+  sprintf(buffer, "Dec:%d\r\n", dec);
   // Transmit data via UART
   HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
-
   // Populate the buffer with a message used to synchronise the the python timing code
   sprintf(buffer, "Start\r\n");
   // Transmit data via UART
   HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
-
   /* Infinite loop */
   while (1)
   {
