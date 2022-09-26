@@ -146,6 +146,13 @@ int main(void)
 	  sprintf (buffer, "%ld\r\n", CRR_val);
 	  HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
 
+    sprintf(buffer, "Duty:\n\r");
+    HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
+
+    int duty = CRR_val*100/47999;
+    sprintf(buffer, "%d \r\n",duty);
+    HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
+
 	  __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_4, CRR_val);
 
 	  //TASK 4
@@ -424,8 +431,9 @@ void EXTI0_1_IRQHandler(void)
 	HAL_GPIO_EXTI_IRQHandler(B1_Pin); // Clear interrupt flags
 	Start = HAL_GetTick();
 
-	if (B1_Pin== GPIO_PIN_SET && (Start - End)>200)
+	if (B1_Pin== GPIO_PIN_SET && (Start - End)>200) // Debouncing delay
 	{
+    // Toggle delay value between 250 and 500
 		if (Delay== 250){Delay = 500;}
 		else {Delay = 250;}
 	}
