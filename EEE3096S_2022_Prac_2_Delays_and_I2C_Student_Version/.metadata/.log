@@ -1,0 +1,46 @@
+!SESSION 2022-08-26 14:48:06.112 -----------------------------------------------
+eclipse.buildId=Version 1.10.1
+java.version=11.0.14.1
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_ZA
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2022-08-26 14:55:28.691
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2022-08-26 14:55:28.736
+!MESSAGE Log4j initialized with config file C:\Users\otrol\Work\Git\EEE3096S_Prac2\EEE3096S_2022_Prac_2_Delays_and_I2C_Student_Version\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2022-08-26 14:55:36.491
+!MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2022-08-26 15:00:41.567 -----------------------------------------------
+eclipse.buildId=Version 1.10.1
+java.version=11.0.14.1
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_ZA
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2022-08-26 15:00:58.184
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2022-08-26 15:00:58.230
+!MESSAGE Log4j initialized with config file C:\Users\otrol\Work\Git\EEE3096S_Prac2\EEE3096S_2022_Prac_2_Delays_and_I2C_Student_Version\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2022-08-26 15:01:05.481
+!MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2022-08-26 15:01:19.223 -----------------------------------------------
+eclipse.buildId=Version 1.10.1
+java.version=11.0.14.1
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_ZA
+Framework arguments:  C:\Users\otrol\Work\Git\EEE3096S_Prac2\EEE3096S_2022_Prac_2_Delays_and_I2C_Student_Version\.project
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 C:\Users\otrol\Work\Git\EEE3096S_Prac2\EEE3096S_2022_Prac_2_Delays_and_I2C_Student_Version\.project
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2022-08-26 15:01:26.185
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2022-08-26 15:01:26.228
+!MESSAGE Log4j initialized with config file C:\Users\otrol\Work\Git\EEE3096S_Prac2\EEE3096S_2022_Prac_2_Delays_and_I2C_Student_Version\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2022-08-26 15:01:33.411
+!MESSAGE Started RMI Server, listening on port 41337
