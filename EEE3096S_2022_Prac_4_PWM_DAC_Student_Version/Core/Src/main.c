@@ -15,7 +15,7 @@ We also set up an interrupt to switch the waveform between various LUTs.
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -33,6 +33,9 @@ We also set up an interrupt to switch the waveform between various LUTs.
 #define TIM2CLK 80000000
 #define F_SIGNAL 4822
 
+// Define RS232 Address
+#define DS3231_ADDRESS 0xD0
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -44,6 +47,11 @@ We also set up an interrupt to switch the waveform between various LUTs.
  TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 DMA_HandleTypeDef hdma_tim2_ch1;
+
+// Create structs for UART/I2C
+I2C_HandleTypeDef hi2c1;
+//UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
 
@@ -16057,11 +16065,21 @@ uint32_t audio_LUT[60000] = {191, 191, 191, 191, 191, 191, 191, 191, 191, 191, 1
 //Calculate TIM2_Ticks
 uint32_t TIM2_Ticks = 1024*TIM2CLK/F_SIGNAL;
 
+// Global variables for debouncing and delay interval
+int Start = 0;
+int End = 0;
+int mode = 0;
+
+// Buffer for UART
+char buffer[14];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_I2C1_Init(void);
+//static void MX_USART2_UART_Init(void);
+//void HAL_UART_TxCpltCllback(UART_HandleTypeDef *huart);
 static void MX_DMA_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
@@ -16102,21 +16120,24 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_I2C1_Init();
   MX_DMA_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
+//  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
   //TO DO:
   //TASK 4
   //Start TIM3 in PWM mode on channel 1
-
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
   //Start TIM2 in Output Compare (OC) mode on channel 1.
-
+  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_1);
   //Start the DMA in interrupt (IT) mode.
   uint32_t DestAddress = (uint32_t) &(TIM3->CCR1);
-
+  HAL_DMA_Start_IT(&hdma_tim2_ch1, (uint32_t)sin_LUT, DestAddress, 4);
   //Start the DMA transfer
+  __HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1);
 
 
 
@@ -16351,9 +16372,36 @@ void EXTI0_1_IRQHandler(void)
 	//TASK 5
 	//Disable DMA transfer, start DMA in IT mode with new source and re enable transfer
 	//Remember to debounce using HAL_GetTick()
-
-
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0); // Clear interrupt flags
+	Start = HAL_GetTick();
+
+	if (GPIO_PIN_0== GPIO_PIN_SET && (Start - End)>200) // Debouncing delay
+	{
+		__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_CC1);
+		uint32_t DestAddress = (uint32_t) &(TIM3->CCR1);
+		uint32_t src = 0;
+		mode = (mode+1)%3;
+		switch(mode){
+			case 0:
+				src = sin_LUT;
+			case 1:
+				src = saw_LUT;
+			case 2:
+				src = triangle_LUT;
+			default:
+				src = sin_LUT;
+		}
+		// Display the mode
+		sprintf(buffer, "Mode: %d\r\n", mode);
+		// Transmit data via UART
+//		HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
+		HAL_DMA_Start_IT(&hdma_tim2_ch1, src, DestAddress, 4);
+		__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1);
+	}
+
+	End = Start;
+
+
 }
 /* USER CODE END 4 */
 
@@ -16371,6 +16419,84 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
+
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.Timing = 0x2000090E;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Analogue filter
+  */
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Digital filter
+  */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
+
+}
+
+///**
+//  * @brief USART2 Initialization Function
+//  * @param None
+//  * @retval None
+//  */
+//static void MX_USART2_UART_Init(void)
+//{
+//
+//  /* USER CODE BEGIN USART2_Init 0 */
+//
+//  /* USER CODE END USART2_Init 0 */
+//
+//  /* USER CODE BEGIN USART2_Init 1 */
+//
+//  /* USER CODE END USART2_Init 1 */
+//  huart2.Instance = USART2;
+//  huart2.Init.BaudRate = 9600;
+//  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+//  huart2.Init.StopBits = UART_STOPBITS_1;
+//  huart2.Init.Parity = UART_PARITY_NONE;
+//  huart2.Init.Mode = UART_MODE_TX_RX;
+//  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+//  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+//  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+//  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+//  if (HAL_UART_Init(&huart2) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//  /* USER CODE BEGIN USART2_Init 2 */
+//
+//  /* USER CODE END USART2_Init 2 */
+//
+//}
 
 #ifdef  USE_FULL_ASSERT
 /**
