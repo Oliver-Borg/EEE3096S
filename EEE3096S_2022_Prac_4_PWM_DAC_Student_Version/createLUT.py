@@ -55,7 +55,7 @@ def create_lut(name, func, ns):
             
 
 
-NS = 60000
+NS = 128
 
 create_lut("sine.txt", sin, NS)
 create_lut("saw.txt", saw, NS)
