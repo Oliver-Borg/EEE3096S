@@ -35,7 +35,7 @@ full_received = 0
 
 graph = plt.plot([], [])
 samples = []
-wanted = 256
+wanted = 512
 
 while(1):
     # Wait until there is data waiting in the serial buffer
@@ -44,8 +44,14 @@ while(1):
         serialString = str(serialPort.readline().decode('Ascii')).replace('\x00', '').strip()
         
         if "Mode" in serialString:
-            graph = plt.plot([], [])
+            print(serialString)
+            samples = []
         elif serialString != "":
+            try:
+                if int(serialString) >= 1024:
+                    continue
+            except:
+                continue
             if len(samples) < wanted:
                 samples.append(int(serialString))
                 print(serialString)
@@ -53,6 +59,6 @@ while(1):
                 graph = plt.plot(list(range(0, len(samples))), samples)
                 plt.draw()
                 plt.show()
-                break
+                samples = []
                 
                 

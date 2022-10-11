@@ -30,7 +30,7 @@ We also set up an interrupt to switch the waveform between various LUTs.
 //TASK 2
 //Assign values to NS, TIM2CLK and F_SIGNAL
 #define NS 128
-#define TIM2CLK 80000000
+#define TIM2CLK 48000000
 #define F_SIGNAL 4822
 
 // Define RS232 Address
@@ -86,9 +86,9 @@ uint32_t triangle_LUT[NS] = {511, 527, 543, 559, 575, 591, 607, 623, 639, 655, 6
 //TO DO:
 //TASK 3
 //Calculate TIM2_Ticks
-uint32_t TIM2_Ticks = 1024*TIM2CLK/F_SIGNAL;
+uint32_t TIM2_Ticks = NS*(uint32_t)(TIM2CLK/F_SIGNAL);
 
-// Global variables for debouncing and delay interval
+// Global variables for debouncing and mode
 int Start = 0;
 int End = 0;
 int mode = 0;
@@ -155,7 +155,7 @@ int main(void)
   HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_1);
   //Start the DMA in interrupt (IT) mode.
   uint32_t DestAddress = (uint32_t) &(TIM3->CCR1);
-  HAL_DMA_Start_IT(&hdma_tim2_ch1, (uint32_t)sin_LUT, DestAddress, 4);
+  HAL_DMA_Start_IT(&hdma_tim2_ch1, (uint32_t)sin_LUT, DestAddress, NS);
   //Start the DMA transfer
   __HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1);
 
@@ -169,7 +169,8 @@ int main(void)
   {
     /* USER CODE END WHILE */
 	  // Display the mode
-	  sprintf(buffer, "%d\r\n", HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6));
+	  //	  sprintf(buffer, "%d\r\n", HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6));
+	  sprintf(buffer, "%d\r\n", TIM3->CCR1);
 	  // Transmit data via UART
 	  HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
     /* USER CODE BEGIN 3 */
@@ -237,7 +238,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 100;
+  htim2.Init.Period = TIM2_Ticks - 1; //To make the frequency what we want it to be
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -433,23 +434,29 @@ void EXTI0_1_IRQHandler(void)
 	{
 		__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_CC1);
 		uint32_t DestAddress = (uint32_t) &(TIM3->CCR1);
-		uint32_t src = 0;
+		uint32_t * src = 0;
 		mode = (mode+1)%3;
 		switch(mode){
 			case 0:
-				src = sin_LUT;
+				src = (uint32_t *)sin_LUT;
+				break;
 			case 1:
-				src = saw_LUT;
+				src = (uint32_t *)saw_LUT;
+				break;
 			case 2:
-				src = triangle_LUT;
+				src = (uint32_t *)triangle_LUT;
+				break;
 			default:
-				src = sin_LUT;
+				src = (uint32_t *)sin_LUT;
+				break;
+
 		}
 		// Display the mode
 		sprintf(buffer, "Mode: %d\r\n", mode);
 		// Transmit data via UART
 		HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
-		HAL_DMA_Start_IT(&hdma_tim2_ch1, src, DestAddress, 4);
+		HAL_StatusTypeDef stat = HAL_DMA_Abort_IT(&hdma_tim2_ch1);
+		stat = HAL_DMA_Start_IT(&hdma_tim2_ch1, (uint32_t)src, DestAddress, NS);
 		__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1);
 		End = Start;
 	}
