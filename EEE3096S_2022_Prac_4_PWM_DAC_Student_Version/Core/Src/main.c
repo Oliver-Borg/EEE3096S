@@ -31,7 +31,7 @@ We also set up an interrupt to switch the waveform between various LUTs.
 //Assign values to NS, TIM2CLK and F_SIGNAL
 #define NS 128
 #define TIM2CLK 48000000
-#define F_SIGNAL 4822
+#define F_SIGNAL 5000
 
 // Define RS232 Address
 #define DS3231_ADDRESS 0xD0

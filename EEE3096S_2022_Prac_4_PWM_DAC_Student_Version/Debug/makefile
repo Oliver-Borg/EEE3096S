@@ -60,8 +60,8 @@ all: main-build
 main-build: EEE3096S_2022_Prac_4_PWM_DAC_Student_Version.elf secondary-outputs
 
 # Tool invocations
-EEE3096S_2022_Prac_4_PWM_DAC_Student_Version.elf EEE3096S_2022_Prac_4_PWM_DAC_Student_Version.map: $(OBJS) $(USER_OBJS) C:\Users\otrol\Work\Git\EEE3096S\EEE3096S_2022_Prac_4_PWM_DAC_Student_Version\STM32F051R8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "EEE3096S_2022_Prac_4_PWM_DAC_Student_Version.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0 -T"C:\Users\otrol\Work\Git\EEE3096S\EEE3096S_2022_Prac_4_PWM_DAC_Student_Version\STM32F051R8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="EEE3096S_2022_Prac_4_PWM_DAC_Student_Version.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+EEE3096S_2022_Prac_4_PWM_DAC_Student_Version.elf EEE3096S_2022_Prac_4_PWM_DAC_Student_Version.map: $(OBJS) $(USER_OBJS) C:\Users\Oliver\work\git\EEE3096S\EEE3096S_2022_Prac_4_PWM_DAC_Student_Version\STM32F051R8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "EEE3096S_2022_Prac_4_PWM_DAC_Student_Version.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0 -T"C:\Users\Oliver\work\git\EEE3096S\EEE3096S_2022_Prac_4_PWM_DAC_Student_Version\STM32F051R8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="EEE3096S_2022_Prac_4_PWM_DAC_Student_Version.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
