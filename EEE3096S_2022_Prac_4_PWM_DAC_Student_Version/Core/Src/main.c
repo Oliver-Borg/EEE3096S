@@ -31,7 +31,7 @@ We also set up an interrupt to switch the waveform between various LUTs.
 //Assign values to NS, TIM2CLK and F_SIGNAL
 #define NS 128
 #define TIM2CLK 48000000
-#define F_SIGNAL 5000
+#define F_SIGNAL 500
 
 // Define RS232 Address
 #define DS3231_ADDRESS 0xD0
@@ -86,7 +86,7 @@ uint32_t triangle_LUT[NS] = {511, 527, 543, 559, 575, 591, 607, 623, 639, 655, 6
 //TO DO:
 //TASK 3
 //Calculate TIM2_Ticks
-uint32_t TIM2_Ticks = NS*(uint32_t)(TIM2CLK/F_SIGNAL);
+uint32_t TIM2_Ticks = (uint32_t)(TIM2CLK/F_SIGNAL)/NS;
 
 // Global variables for debouncing and mode
 int Start = 0;
@@ -168,8 +168,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  // Display the mode
-	  //	  sprintf(buffer, "%d\r\n", HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6));
+	  // Display the contents of timer 3s control register. This contains the current duty cycle value
+	  // We do this to check the values being displayed used by the PWM DAC
 	  sprintf(buffer, "%d\r\n", TIM3->CCR1);
 	  // Transmit data via UART
 	  HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
@@ -432,10 +432,14 @@ void EXTI0_1_IRQHandler(void)
 
 	if (GPIO_PIN_0== GPIO_PIN_SET && (Start - End)>200) // Debouncing delay
 	{
+		// Disable the DMA transfer
 		__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_CC1);
+		// Set the destination address
 		uint32_t DestAddress = (uint32_t) &(TIM3->CCR1);
 		uint32_t * src = 0;
+		// Increment the mode and wrap around if necessary
 		mode = (mode+1)%3;
+		// Change the source address depending on the mode
 		switch(mode){
 			case 0:
 				src = (uint32_t *)sin_LUT;
@@ -455,8 +459,11 @@ void EXTI0_1_IRQHandler(void)
 		sprintf(buffer, "Mode: %d\r\n", mode);
 		// Transmit data via UART
 		HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 1000);
+		// Abort the old DMA transfer
 		HAL_StatusTypeDef stat = HAL_DMA_Abort_IT(&hdma_tim2_ch1);
+		// Start a new DMA transfer with the new source address
 		stat = HAL_DMA_Start_IT(&hdma_tim2_ch1, (uint32_t)src, DestAddress, NS);
+		// Re enable DMA transfer
 		__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1);
 		End = Start;
 	}

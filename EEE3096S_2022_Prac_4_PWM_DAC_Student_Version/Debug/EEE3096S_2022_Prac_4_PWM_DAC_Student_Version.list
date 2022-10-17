@@ -39,11 +39,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  17 .debug_line   0000da7d  00000000  00000000  00042945  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000711fb  00000000  00000000  000503c2  2**0
+ 18 .debug_str    000711fa  00000000  00000000  000503c2  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000050  00000000  00000000  000c15bd  2**0
+ 19 .comment      00000050  00000000  00000000  000c15bc  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00002df8  00000000  00000000  000c1610  2**2
+ 20 .debug_frame  00002df8  00000000  00000000  000c160c  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -555,8 +555,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  // Display the mode
-	  //	  sprintf(buffer, "%d\r\n", HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6));
+	  // Display the contents of timer 3s control register. This contains the current duty cycle value
+	  // We do this to check the values being displayed used by the PWM DAC
 	  sprintf(buffer, "%d\r\n", TIM3->CCR1);
  8000460:	4b0c      	ldr	r3, [pc, #48]	; (8000494 <main+0x8c>)
  8000462:	6b5a      	ldr	r2, [r3, #52]	; 0x34
@@ -1325,6 +1325,7 @@ void EXTI0_1_IRQHandler(void)
  80008d6:	2bc8      	cmp	r3, #200	; 0xc8
  80008d8:	dd57      	ble.n	800098a <EXTI0_1_IRQHandler+0xd6>
 	{
+		// Disable the DMA transfer
 		__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_CC1);
  80008da:	4b30      	ldr	r3, [pc, #192]	; (800099c <EXTI0_1_IRQHandler+0xe8>)
  80008dc:	681b      	ldr	r3, [r3, #0]
@@ -1334,12 +1335,14 @@ void EXTI0_1_IRQHandler(void)
  80008e4:	492e      	ldr	r1, [pc, #184]	; (80009a0 <EXTI0_1_IRQHandler+0xec>)
  80008e6:	400a      	ands	r2, r1
  80008e8:	60da      	str	r2, [r3, #12]
+		// Set the destination address
 		uint32_t DestAddress = (uint32_t) &(TIM3->CCR1);
  80008ea:	4b2e      	ldr	r3, [pc, #184]	; (80009a4 <EXTI0_1_IRQHandler+0xf0>)
  80008ec:	60bb      	str	r3, [r7, #8]
 		uint32_t * src = 0;
  80008ee:	2300      	movs	r3, #0
  80008f0:	60fb      	str	r3, [r7, #12]
+		// Increment the mode and wrap around if necessary
 		mode = (mode+1)%3;
  80008f2:	4b2d      	ldr	r3, [pc, #180]	; (80009a8 <EXTI0_1_IRQHandler+0xf4>)
  80008f4:	681b      	ldr	r3, [r3, #0]
@@ -1351,6 +1354,7 @@ void EXTI0_1_IRQHandler(void)
  8000902:	001a      	movs	r2, r3
  8000904:	4b28      	ldr	r3, [pc, #160]	; (80009a8 <EXTI0_1_IRQHandler+0xf4>)
  8000906:	601a      	str	r2, [r3, #0]
+		// Change the source address depending on the mode
 		switch(mode){
  8000908:	4b27      	ldr	r3, [pc, #156]	; (80009a8 <EXTI0_1_IRQHandler+0xf4>)
  800090a:	681b      	ldr	r3, [r3, #0]
@@ -1404,6 +1408,7 @@ void EXTI0_1_IRQHandler(void)
  8000948:	481d      	ldr	r0, [pc, #116]	; (80009c0 <EXTI0_1_IRQHandler+0x10c>)
  800094a:	220e      	movs	r2, #14
  800094c:	f002 fb64 	bl	8003018 <HAL_UART_Transmit>
+		// Abort the old DMA transfer
 		HAL_StatusTypeDef stat = HAL_DMA_Abort_IT(&hdma_tim2_ch1);
  8000950:	1dfc      	adds	r4, r7, #7
  8000952:	4b1c      	ldr	r3, [pc, #112]	; (80009c4 <EXTI0_1_IRQHandler+0x110>)
@@ -1411,6 +1416,7 @@ void EXTI0_1_IRQHandler(void)
  8000956:	f000 fbc1 	bl	80010dc <HAL_DMA_Abort_IT>
  800095a:	0003      	movs	r3, r0
  800095c:	7023      	strb	r3, [r4, #0]
+		// Start a new DMA transfer with the new source address
 		stat = HAL_DMA_Start_IT(&hdma_tim2_ch1, (uint32_t)src, DestAddress, NS);
  800095e:	68f9      	ldr	r1, [r7, #12]
  8000960:	1dfc      	adds	r4, r7, #7
@@ -1420,6 +1426,7 @@ void EXTI0_1_IRQHandler(void)
  8000968:	f000 fb52 	bl	8001010 <HAL_DMA_Start_IT>
  800096c:	0003      	movs	r3, r0
  800096e:	7023      	strb	r3, [r4, #0]
+		// Re enable DMA transfer
 		__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1);
  8000970:	4b0a      	ldr	r3, [pc, #40]	; (800099c <EXTI0_1_IRQHandler+0xe8>)
  8000972:	681b      	ldr	r3, [r3, #0]

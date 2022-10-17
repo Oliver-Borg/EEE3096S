@@ -6,4 +6,4 @@
 ../Core/Src/main.c:374:13:MX_DMA_Init	16	static
 ../Core/Src/main.c:392:13:MX_GPIO_Init	48	static
 ../Core/Src/main.c:424:6:EXTI0_1_IRQHandler	32	static
-../Core/Src/main.c:471:6:Error_Handler	8	static,ignoring_inline_asm
+../Core/Src/main.c:478:6:Error_Handler	8	static,ignoring_inline_asm
